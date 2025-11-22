@@ -1,0 +1,42 @@
+# 忽略 Git 文件
+.git
+.gitignore
+
+# 忽略环境文件（包含敏感信息）
+.env
+.env.local
+.env.*.local
+
+# 忽略构建产物
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+proxy
+
+# 忽略测试文件
+*_test.go
+*.test
+
+# 忽略文档
+README.md
+*.md
+
+# 忽略 IDE 配置
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# 忽略日志文件
+*.log
+
+# 忽略临时文件
+tmp/
+temp/
+
+.version
+README.md
+.github

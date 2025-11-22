@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  url-proxy:
+    image: ghcr.io/rfym21/url-proxy:latest
+    container_name: url-proxy
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - API_URL=https://api.openai.com
+      - TIMEOUT=300
+      - MAX_BODY_SIZE=100
+      - ENABLE_KEEPALIVE=false
+      - HTTP_PROXY=http://proxy-flow:8282
+    depends_on:
+      - proxy-flow
+    networks:
+      - proxy-network
+
+  proxy-flow:
+    image: ghcr.io/rfym21/proxy-flow:latest
+    container_name: proxy-flow
+    restart: unless-stopped
+    # ports:
+    #   - "8282:8282"
+    volumes:
+      - ./proxy.txt:/app/proxy.txt:ro
+    environment:
+      - PROXY_PORT=8282
+      - PROXY_FILE=proxy.txt
+      - MAX_IDLE_CONNS=0
+      - MAX_IDLE_CONNS_PER_HOST=0
+      - MAX_RETRY_COUNT=0
+      - REQUEST_TIMEOUT=300
+      # - AUTH_USERNAME=
+      # - AUTH_PASSWORD=
+    networks:
+      - proxy-network
+
+networks:
+  proxy-network:
+    driver: bridge
