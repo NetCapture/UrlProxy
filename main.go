@@ -219,6 +219,12 @@ func copyHeaders(dst http.Header, src http.Header) {
  * 主代理处理函数
  */
 func proxyHandler(w http.ResponseWriter, r *http.Request) {
+	// 根路径重定向
+	if r.URL.Path == "/" {
+		http.Redirect(w, r, "https://www.bilibili.com/video/BV1AM4y1M71p/?spm_id_from=..search-card.all.click&vd_source=202e4935d40ec347ce7874800ad3fb26", http.StatusFound)
+		return
+	}
+
 	// 解析路径前缀，找到对应的目标 URL
 	path := strings.TrimPrefix(r.URL.Path, "/")
 	pathParts := strings.SplitN(path, "/", 2)
@@ -233,10 +239,9 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 	if !exists {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(map[string]any{
-			"error": "Path prefix not found",
+		json.NewEncoder(w).Encode(map[string]string{
+			"error":   "Path prefix not found",
 			"message": fmt.Sprintf("No proxy configuration for prefix: %s", prefix),
-			"available_prefixes": getConfigKeys(),
 		})
 		return
 	}
