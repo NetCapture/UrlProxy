@@ -5,6 +5,9 @@ FROM --platform=$BUILDPLATFORM golang:1.21-alpine AS builder
 ARG TARGETOS
 ARG TARGETARCH
 
+# 设置 Go 代理加速依赖下载
+ENV GOPROXY=https://goproxy.cn,https://proxy.golang.org,direct
+
 # 设置工作目录
 WORKDIR /build
 
