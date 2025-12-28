@@ -8,8 +8,8 @@ ARG TARGETARCH
 # 设置工作目录
 WORKDIR /build
 
-# 复制 go.mod 和 go.sum（如果存在）
-COPY go.mod ./
+# 复制 go.mod 和 go.sum
+COPY go.mod go.sum ./
 
 # 下载依赖（利用 Docker 缓存）
 RUN go mod download
