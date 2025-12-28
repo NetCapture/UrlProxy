@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -16,6 +17,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"golang.org/x/net/proxy"
 )
 
 const (
@@ -140,8 +143,30 @@ func initHTTPClient() {
 		if err != nil {
 			log.Printf("Invalid proxy URL: %v", err)
 		} else {
-			transport.Proxy = http.ProxyURL(proxyURL)
-			log.Printf("Using proxy: %s", httpProxy)
+			scheme := strings.ToLower(proxyURL.Scheme)
+			if scheme == "socks5" || scheme == "socks5h" {
+				// SOCKS5 代理
+				auth := &proxy.Auth{}
+				if proxyURL.User != nil {
+					auth.User = proxyURL.User.Username()
+					auth.Password, _ = proxyURL.User.Password()
+				} else {
+					auth = nil
+				}
+				dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, auth, proxy.Direct)
+				if err != nil {
+					log.Printf("Failed to create SOCKS5 dialer: %v", err)
+				} else {
+					transport.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+						return dialer.Dial(network, addr)
+					}
+					log.Printf("Using SOCKS5 proxy: %s", httpProxy)
+				}
+			} else {
+				// HTTP/HTTPS 代理
+				transport.Proxy = http.ProxyURL(proxyURL)
+				log.Printf("Using HTTP proxy: %s", httpProxy)
+			}
 		}
 	}
 
